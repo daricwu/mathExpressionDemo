@@ -5,12 +5,13 @@ import { ConditionWrapper } from './style'
 import EditCaretPositioning from './caretPosition'
 
 function App() {
-  const [src, setSrc] = useState("mv_ud1*3 - 7*sqrt + 8*2")
+  const [src, setSrc] = useState("mv_ud1*3 - 7*pow(8, dgh)")
   const [htmlFormat, setHtmlFormat] = useState("")
   const [analysic, setAnalysic] = useState("")
   const [errors, setErrors] = useState("")
   const contentRef = useRef<HTMLDivElement | null>(null);
   const caretPos = useRef();
+  const availableParams:string[] = ["mv_ud1"];
 
   useEffect(() => {
     if (!contentRef || !contentRef.current) return;
@@ -31,7 +32,7 @@ function App() {
     const html = formatExpressionInHTML(src)
     setAnalysic(JSON.stringify(seperateTokens(src)))
     setHtmlFormat(html)
-    setErrors(validateMathExpression(src))
+    setErrors(validateMathExpression(src, availableParams))
   }
 
   return (

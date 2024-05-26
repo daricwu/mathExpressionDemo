@@ -242,36 +242,78 @@ export const expressionFormatHtml = (tokens: MathToken[]) => {
   return html;
 };
 
-const validateOperators = (tokens: MathToken[]): {valid: boolean, index?: number} => {
+const formatItem = (item: string, type: string): string => {
+  if (!item) return "";
+  let className: string = "";
+  switch (type) {
+    case "bracketsLeft":
+      className = "exp-brackets-left";
+      break;
+    case "bracketsRight":
+      className = "exp-brackets-right";
+      break;
+    case "delimeters":
+    case "operators":
+    case "params":
+    case "numbers":
+      className = `exp-${type}`;
+      break;
+    default: break;
+  }
+  return `<span class="${className}">${item}</span>`;
+}
+
+const formatToken = (token?: MathToken): string => {
+  if (!token) return "";
+  return formatItem(token.text, token.type);
+}
+
+const validateOperators = (tokens: MathToken[]): {valid: boolean, index?: number, detail?: string } => {
   const operaters: MathToken[] = tokens
   .filter((tk: MathToken) => tk.type === "operators");
   for (let i = 0; i < operaters.length; i++) {
     const tk: MathToken = operaters[i];
-    const nextToken = tokens.find((x: MathToken) => x.startIndex === tk.endIndex + 1);
-    if (tk.text.length > 1 && nextToken?.type !== "bracketsLeft") {
-      const index = tokens.findIndex((x: MathToken) => x.startIndex === tk.startIndex);
-      return { valid: false, index: index };
+    const index = tokens.findIndex((x: MathToken) => x.startIndex === tk.startIndex);
+    const prevToken = tokens[index - 1];
+    const nextToken = tokens[index + 1];
+    if (tk.text.length > 1 && (!nextToken || nextToken.type !== "bracketsLeft")) {
+      return { valid: false, index: index, detail: `${formatToken(tk)}${formatToken(nextToken)}` };
+    }
+    if (tk.text.length === 1 && (!prevToken || !nextToken || !["params", "numbers", "bracketsRight"].includes(prevToken.type) || (nextToken.type === "operators" && nextToken.text.length === 1) || !["params", "numbers", "bracketsRight"])) {
+      return { valid: false, index: index, detail: `${formatToken(prevToken)}${formatToken(tk)}${formatToken(nextToken)}` };
     }
   }
   return { valid: true };
 }
 
-const usage = (operator: string): string => {
-  if (operator.length === 1) {
-    return `<br/>Usage: <span class="exp-params">a</span> <span class="exp-operators">${operator}</span> <span class="exp-params">b</span><br/>Where <span class="exp-params">a</span>, <span class="exp-params">b</span> is a param, number or valid math expression`;
-  }
-  if (["pow"].includes(operator.toLowerCase())) {
-    return `<br/>Usage: <span class ="exp-operators">${operator}</span><span class="exp-brackets-left">(</span><span class="exp-params">a</span><span class="exp-delimeters">, </span><span class="exp-params">b</span><span class="exp-brackets-right">)</span><br/>Where <span class ="exp-params">a</span>, <span class="exp-params">b</span> is a param, number or valid math expression`;
-  }
-  return `<br/>Usage: <span class="exp-operators">${operator}</span><span class="exp-brackets-left">(</span><span class="exp-params">n</span><span class="exp-brackets-right">)</span><br/>Where <span class="exp-params">n</span> is a param, number or valid math expression`;
+const validateParms = (tokens: MathToken[], availableParams: string[]): string => {
+  const params: MathToken[] = tokens.filter((tk: MathToken) => tk.type === "params");
+  const paramsNotDefined: string[] = [];
+  params.forEach((param: MathToken) => {
+    if (!availableParams.includes(param.text)) {
+      paramsNotDefined.push(formatToken(param));
+    }
+  });
+  if (paramsNotDefined.length === 0) return "";
+  return `Param${paramsNotDefined.length > 1 ? "s" : ""} ${paramsNotDefined.join(", ")} not defined`;
 }
 
-export const validateMathExpression = (expression: string): string => {
+const usage = (operator: string): string => {
+  if (operator.length === 1) {
+    return `<br/>Usage: ${formatItem("a", "params")} ${formatItem(operator, "operators")} ${formatItem("b", "params")}<br/>Where ${formatItem("a", "params")}, ${formatItem("b", "params")} is a param, number or valid math expression`;
+  }
+  if (["pow"].includes(operator.toLowerCase())) {
+    return `<br/>Usage: ${formatItem(operator, "operators")}${formatItem("(","bracketsLeft")}${formatItem("a", "params")}${formatItem(", ", "delimeters")}${formatItem("b", "params")}${formatItem(")", "bracketsRight")}<br/>Where ${formatItem("a", "params")}, ${formatItem("b", "params")} is a param, number or valid math expression`;
+  }
+  return `<br/>Usage: ${formatItem(operator, "operators")}${formatItem("(","bracketsLeft")}${formatItem("n", "params")}${formatItem(")", "bracketsRight")}<br/>Where ${formatItem("n", "params")} is a param, number or valid math expression`;
+}
+
+export const validateMathExpression = (expression: string, availableParams: string[]): string => {
   const tokens = seperateTokens(expression);
   const validOperators = validateOperators(tokens)
   if (!validOperators.valid) {
     const operator: MathToken = tokens[validOperators.index??0]
-    return `Error at function <span class="exp-operators">${operator.text}</span>\n${usage(operator.text)}`;
+    return `Error at ${validOperators.detail}\n${usage(operator.text)}`;
   }
   const params = tokens.filter((token) => token.type === "params");
   let mathExpression = "";
@@ -307,12 +349,12 @@ export const validateMathExpression = (expression: string): string => {
     if (!isNaN(n)) {
       const paramIndex = n - 1000000000;
       if (paramIndex >= 0) {
-        errMessage = errMessage.replace(n.toString(), params[paramIndex].text);
+        errMessage = errMessage.replace(n.toString(), formatItem(params[paramIndex].text, "operators"));
       }
     }
     return errMessage.replaceAll("Math.", "");
   }
-  return "";
+  return validateParms(tokens, availableParams);
 };
 
 export const buildPopup = (span: HTMLElement, popupElm: HTMLElement) => {

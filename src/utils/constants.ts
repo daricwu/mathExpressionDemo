@@ -210,7 +210,7 @@ const patternsList = {
   bracketsRight: /[)]/gi,
   delimeters: /[,]/gi,
   operators: /[+\-*/^%]|abs|sin|cos|tan|log|pow|inverse|sqrt/gi,
-  params: /[a-z][a-z0-9_]*[a-z0-9]|[a-z][a-z0-9]*/gi,
+  params: /[a-z0-9][a-z0-9_]*[a-z0-9]|[a-z][a-z0-9]*/gi,
   numbers: /[0-9][0-9]*[.]{0,1}[0-9]*/gi,
 };
 /** End: Patterns list */
