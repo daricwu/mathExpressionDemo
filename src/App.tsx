@@ -1,11 +1,20 @@
 import { useState } from 'react'
 import './App.css'
+import { formatExpressionInHTML, seperateTokens } from './utils/helper'
+import { ConditionWrapper } from './style'
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [src, setSrc] = useState("mv_ud1*3 - 7*pow(8,2)")
+  const [htmlFormat, setHtmlFormat] = useState("")
+  const [analysic, setAnalysic] = useState("")
+
+  const handleClick = () => {
+    setAnalysic(JSON.stringify(seperateTokens(src)))
+    setHtmlFormat(formatExpressionInHTML(src))
+  }
 
   return (
-    <>
+    <ConditionWrapper>
       <div className="flex w-full">
         <table className="table">
           <tbody>
@@ -16,12 +25,14 @@ function App() {
             </tr>
             <tr>
               <td colSpan={2}>
-                <div className="textarea" id="src"/>
+                <div contentEditable="true"  className="textarea" id="src">
+                  {src}
+                </div>
               </td>
             </tr>
             <tr>
               <td colSpan={2} className="action">
-                <button>Let Go</button>
+                <button onClick={handleClick}>Let Go</button>
               </td>
             </tr>
             <tr>
@@ -34,10 +45,10 @@ function App() {
             </tr>
             <tr>
               <td>
-                <div className="textarea" id="analysic"/>
+                <div dangerouslySetInnerHTML={{ __html: analysic }}  className="textarea" id="analysic"/>
               </td>
               <td>
-                <div className="textarea" id="htmlFormat"/>
+                <div dangerouslySetInnerHTML={{ __html: htmlFormat }} className="textarea" id="htmlFormat"/>
               </td>
             </tr>
             <tr>
@@ -48,7 +59,7 @@ function App() {
           </tbody>
         </table>
       </div>
-    </>
+    </ConditionWrapper>
   )
 }
 

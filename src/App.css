@@ -54,6 +54,8 @@
   width: 170px;
   border: 1px solid black;
   border-radius: 5px;
+  word-wrap: break-word;
+  overflow-y: auto;
 }
 .table tr > td.action {
   text-align: center;

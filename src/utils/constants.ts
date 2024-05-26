@@ -251,3 +251,13 @@ export const EXPRESSION_CONSTANTS = {
     OPERATOR_OPTIONS_LIST: operatorOptionsList,
   },
 };
+
+export const COLORS = {
+  expression_values_color: "#1212ff",
+  expression_brackets_color: "margenta",
+  expression_operators_color: "#61dafbaa",
+  expression_params_color: "brown",
+  expression_delimeter_color: "blue",
+  orochimaru: "#c7c7c7",
+
+}

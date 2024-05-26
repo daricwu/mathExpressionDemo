@@ -238,7 +238,7 @@ export const expressionFormatHtml = (tokens: MathToken[]) => {
     html = html + value;
   });
   Object.keys(EXPRESSION_CONSTANTS.CODES_LIST).forEach((key) => {
-    html = html.replace(key, EXPRESSION_CONSTANTS.CODES_LIST[key]);
+    html = html.replaceAll(key, EXPRESSION_CONSTANTS.CODES_LIST[key]);
   });
   return html;
 };
