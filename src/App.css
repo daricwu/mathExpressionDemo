@@ -56,6 +56,7 @@
   border-radius: 5px;
   word-wrap: break-word;
   overflow-y: auto;
+  font-size: 13px;
 }
 .table tr > td.action {
   text-align: center;
@@ -79,4 +80,5 @@
   color: red;
   height: 50px;
   width: 360px;
+  font-size: 13px;
 }

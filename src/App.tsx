@@ -1,16 +1,37 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import './App.css'
-import { formatExpressionInHTML, seperateTokens } from './utils/helper'
+import { formatExpressionInHTML, seperateTokens, validateMathExpression } from './utils/helper'
 import { ConditionWrapper } from './style'
+import EditCaretPositioning from './caretPosition'
 
 function App() {
-  const [src, setSrc] = useState("mv_ud1*3 - 7*pow(8,2)")
+  const [src, setSrc] = useState("mv_ud1*3 - 7*sqrt + 8*2")
   const [htmlFormat, setHtmlFormat] = useState("")
   const [analysic, setAnalysic] = useState("")
+  const [errors, setErrors] = useState("")
+  const contentRef = useRef<HTMLDivElement | null>(null);
+  const caretPos = useRef();
+
+  useEffect(() => {
+    if (!contentRef || !contentRef.current) return;
+    EditCaretPositioning.setCaret(contentRef.current, caretPos.current);
+    contentRef.current.focus();
+  }, [src]);
+
+
+  const handleUpdateSrc = (event: any) => {
+    const textContent = event.currentTarget.textContent
+    setSrc(textContent)
+    if (contentRef && contentRef.current) {
+      caretPos.current = EditCaretPositioning.getCaret(contentRef.current)
+    }
+  }
 
   const handleClick = () => {
+    const html = formatExpressionInHTML(src)
     setAnalysic(JSON.stringify(seperateTokens(src)))
-    setHtmlFormat(formatExpressionInHTML(src))
+    setHtmlFormat(html)
+    setErrors(validateMathExpression(src))
   }
 
   return (
@@ -25,7 +46,7 @@ function App() {
             </tr>
             <tr>
               <td colSpan={2}>
-                <div contentEditable="true"  className="textarea" id="src">
+                <div ref={contentRef} suppressContentEditableWarning={true} onInput={handleUpdateSrc} contentEditable="true"  className="textarea" id="src">
                   {src}
                 </div>
               </td>
@@ -53,7 +74,7 @@ function App() {
             </tr>
             <tr>
               <td colSpan={2}>
-                <div className="textarea error" id="errors"></div>
+                <div dangerouslySetInnerHTML={{ __html: errors }} className="textarea error" id="errors"></div>
               </td>
             </tr>
           </tbody>

@@ -199,7 +199,6 @@ export const seperateTokens = (text: string): MathToken[] => {
                     };
                   }),
                 ];
-                alert(JSON.stringify(sortList));
               }
             }
           }
@@ -243,8 +242,37 @@ export const expressionFormatHtml = (tokens: MathToken[]) => {
   return html;
 };
 
+const validateOperators = (tokens: MathToken[]): {valid: boolean, index?: number} => {
+  const operaters: MathToken[] = tokens
+  .filter((tk: MathToken) => tk.type === "operators");
+  for (let i = 0; i < operaters.length; i++) {
+    const tk: MathToken = operaters[i];
+    const nextToken = tokens.find((x: MathToken) => x.startIndex === tk.endIndex + 1);
+    if (tk.text.length > 1 && nextToken?.type !== "bracketsLeft") {
+      const index = tokens.findIndex((x: MathToken) => x.startIndex === tk.startIndex);
+      return { valid: false, index: index };
+    }
+  }
+  return { valid: true };
+}
+
+const usage = (operator: string): string => {
+  if (operator.length === 1) {
+    return `<br/>Usage: <span class="exp-params">a</span> <span class="exp-operators">${operator}</span> <span class="exp-params">b</span><br/>Where <span class="exp-params">a</span>, <span class="exp-params">b</span> is a param, number or valid math expression`;
+  }
+  if (["pow"].includes(operator.toLowerCase())) {
+    return `<br/>Usage: <span class ="exp-operators">${operator}</span><span class="exp-brackets-left">(</span><span class="exp-params">a</span><span class="exp-delimeters">, </span><span class="exp-params">b</span><span class="exp-brackets-right">)</span><br/>Where <span class ="exp-params">a</span>, <span class="exp-params">b</span> is a param, number or valid math expression`;
+  }
+  return `<br/>Usage: <span class="exp-operators">${operator}</span><span class="exp-brackets-left">(</span><span class="exp-params">n</span><span class="exp-brackets-right">)</span><br/>Where <span class="exp-params">n</span> is a param, number or valid math expression`;
+}
+
 export const validateMathExpression = (expression: string): string => {
   const tokens = seperateTokens(expression);
+  const validOperators = validateOperators(tokens)
+  if (!validOperators.valid) {
+    const operator: MathToken = tokens[validOperators.index??0]
+    return `Error at function <span class="exp-operators">${operator.text}</span>\n${usage(operator.text)}`;
+  }
   const params = tokens.filter((token) => token.type === "params");
   let mathExpression = "";
   tokens.forEach((tk) => {
