@@ -1,0 +1,80 @@
+#root {
+  max-width: 1280px;
+  width: 376px;
+  height: 374px;
+  margin: 0 auto;
+  padding: 0;
+  border: 1px solid #c7c7c7;
+}
+
+.logo {
+  height: 6em;
+  padding: 1.5em;
+  will-change: filter;
+  transition: filter 300ms;
+}
+.logo:hover {
+  filter: drop-shadow(0 0 2em #646cffaa);
+}
+.logo.react:hover {
+  filter: drop-shadow(0 0 2em #61dafbaa);
+}
+
+@keyframes logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  a:nth-of-type(2) .logo {
+    animation: logo-spin infinite 20s linear;
+  }
+}
+
+.card {
+  padding: 2em;
+}
+
+.read-the-docs {
+  color: #888;
+}
+ .table {
+   width: 100%;
+ }
+ .table tr > td {
+   padding: 0 8px;
+   width: calc(50% - 16px);
+ }
+.table tr > td > textarea, .table  tr > td > .textarea {
+  height: 150px;
+  width: 170px;
+  border: 1px solid black;
+  border-radius: 5px;
+}
+.table tr > td.action {
+  text-align: center;
+}
+.table tr > td.action > button {
+  color: white;
+  background-color: #61dafbaa;
+  outline: none;
+  cursor: pointer;
+  border: 1px solid #61dafbaa;
+}
+.table tr > td.action > button:hover {
+  box-shadow: #61da 0 0 8px 8px;
+}
+.table tr > td[colSpan] > textarea,
+.table tr > td[colSpan] > .textarea {
+  height: 50px;
+  width: 356px;
+}
+.table tr > td > .textarea.error {
+  color: red;
+  height: 50px;
+  width: 360px;
+}
